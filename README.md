@@ -1,7 +1,7 @@
 # Autonomous AI Software Factory
 
 > **Portable architecture and operating specification**  
-> Version: 1.0 · Status: Proposed baseline · Runtime: Tool-agnostic (Grok, Claude Code, Codex, or other agent-capable environments)
+> Status: Proposed baseline · Runtime: Tool-agnostic (Grok, Claude Code, Codex, or other agent-capable environments)
 
 ## 1. Purpose
 
@@ -40,11 +40,14 @@ Orchestrator (single user interface + scheduler + task intelligence router)
     +-- Software Engineer   : frontend, backend, integration, unit tests
     +-- QA Engineer         : independent testing, regression, acceptance
     +-- DevOps / SRE        : CI/CD, infrastructure, reliability, rollback
+    +-- Researcher          : evidence gathering, source validation, alternatives
     |
     +-- Temporary specialists when justified:
         Security, Database, Performance, Mobile, Accessibility,
-        Research, Documentation, Engineering Productivity, etc.
+        Documentation, Engineering Productivity, etc.
 ```
+
+The **Researcher** is a permanent role definition, activated only when needed: investigate unfamiliar technologies, evaluate libraries, compare approaches, verify claims against primary sources, and summarize findings with citations, confidence, and freshness. It does not silently make product decisions, install dependencies, or modify production code. Research is scoped and time-boxed; prefer existing verified project knowledge over duplicate searches.
 
 The Orchestrator owns scope, priority, task registry, scheduling, task contracts, integration, risk approvals, and final delivery. It can handle trivial work directly. Domain agents own their domain outputs but cannot override Owner requirements or shared contracts unilaterally.
 
@@ -78,7 +81,8 @@ The Orchestrator owns scope, priority, task registry, scheduling, task contracts
 | Complex bug/performance issue | SWE + optional specialist | Strong debugging/reasoning | High | Evidence-driven diagnosis |
 | Test generation/regression | QA | Coding/testing | Medium | Independent verification |
 | Security, migration, production | Relevant specialist | Strong reasoning + domain capability | High | Strict gates and approval where required |
-| Research/documentation | Researcher or Orchestrator | Economical with appropriate retrieval | Low–Medium | Source-grounded, concise |
+| Research, technology evaluation, unfamiliar domain | Researcher | Retrieval-capable model; stronger reasoning for conflicting evidence | Low–High based on uncertainty | Source-grounded recommendation with citations and trade-offs |
+| Documentation | Orchestrator or documentation specialist | Economical | Low–Medium | Reuse verified project facts |
 
 These are **capability tiers**, not fixed vendor model names. The router must discover available models and their actual strengths, costs, context limits, tool support, and effort controls. Do not assume all runtimes expose model selection or reasoning effort. When unavailable, use the current model and adapt task scope, tools, and verification.
 
@@ -122,40 +126,11 @@ Every nontrivial delegated task should have a compact contract containing:
 
 **Scheduling:** Maintain a dependency graph and prioritize ready tasks on the critical path. Avoid speculative work, duplicate investigation, idle agent polling, and unnecessary status messages. Bound concurrency by runtime capacity and budget; do not assume a fixed optimal worker count.
 
-## 7. New-project onboarding
+## 7. Project onboarding and engineering setup
 
-On first contact with a new project, or after a significant architectural change:
+For new projects and significant architecture changes, follow **[PROJECT_ONBOARDING.md](PROJECT_ONBOARDING.md)**. It defines discovery, concept and architecture, hooks, skill approval, baseline checks, and project readiness. Do not repeat onboarding every session.
 
-1. **Discover:** Determine whether the project is new or existing. Inspect goals, repository, stack, conventions, dependencies, environments, tests, and existing architecture.
-2. **Define concept:** Establish intended users, core use cases, initial scope, non-goals, and measurable acceptance criteria. Infer safe defaults; ask only if a consequential unknown blocks progress.
-3. **Establish architecture:** Choose the simplest appropriate system structure, interfaces, data flow, security posture, and operational assumptions. Respect existing architecture unless there is evidence to change it.
-4. **Set up safeguards:** Identify suitable lint, typecheck, tests, formatting, import boundaries, secrets checks, pre-commit/CI gates, and available lifecycle hooks. Prefer deterministic enforcement.
-5. **Discover skills:** Audit built-in capabilities and installed skills; propose a small curated set of project-specific additions, with purpose, source, permissions, maintenance, and benefit. Avoid redundant or untrusted skills.
-6. **Request one consolidated approval** before installing new external skills, as explicitly required by the Owner. Ask separately only for unavoidable high-risk decisions. Do not install without approval.
-7. **Initialize project memory:** Record architecture, constraints, approved skills, controls, decisions, and task conventions.
-8. **Begin work:** Activate only necessary workers. For later sessions, load existing onboarding state rather than repeating setup.
-
-**Skill policy:** Aim for a meaningful but minimal skill set (often around 3–6 project-specific skills when warranted, not a quota). Reuse built-in or existing capabilities before installation. An agent skill is not a substitute for executable tooling where deterministic enforcement is possible.
-
-## 8. Engineering safeguards and hooks
-
-Distinguish **agent lifecycle controls** from **repository engineering controls**. Implement each with native hooks when supported, or with explicit workflow checks when not.
-
-| Event | Expected check |
-|---|---|
-| Task intake | Scope, risk, category, ownership, budgets |
-| Before delegation | Dependencies, contract, worktree/file ownership |
-| Before edits | Relevant architecture, code conventions, permission scope |
-| After edits | Appropriate lint, typecheck, tests, diff review |
-| Before commit/merge | No secrets, conflicts, broken contracts, critical findings |
-| Before deployment | Approval if high-risk, environment validation, rollback plan |
-| Context pressure | Checkpoint, compact, successor handoff |
-| Failed solution | Increment shared attempt counter; diagnose |
-| Completion | Verify acceptance, capture reusable knowledge, retire worker |
-
-Hooks themselves must be bounded and must not recursively trigger endless repairs. CI or an equivalent authoritative gate should enforce important rules even if local hooks are skipped.
-
-## 9. Failure recovery: hard cap of five
+## 8. Failure recovery: hard cap of five
 
 A **solution attempt** is a coherent implementation/repair strategy followed by its relevant verification gate. Routine diagnostic commands or individual test assertions within that strategy are not automatically separate attempts. Count a new attempt when a failed solution is materially revised and re-submitted for verification.
 
@@ -170,7 +145,7 @@ A **solution attempt** is a coherent implementation/repair strategy followed by 
 
 Task terminal states: **completed**, **blocked**, **awaiting approval**, or **failed with evidence**. No silent disappearance or infinite retry loops.
 
-## 10. Continuous Engineering Improvement (CEI)
+## 9. Continuous Engineering Improvement (CEI)
 
 Detect recurring issue fingerprints across workers and sessions: violated invariant, error signature, affected subsystem, root cause, and previous correction. Two occurrences of the same root problem trigger prevention analysis; critical failures may trigger it immediately. This is a trigger to **evaluate**, not automatically add a dependency.
 
@@ -186,7 +161,7 @@ Example: Repeated Feature-Sliced Design import violations should prompt evaluati
 
 For each improvement: confirm root cause → compare native/existing solutions → choose smallest reliable mechanism → implement within permission scope → prove it catches the target violation without unacceptable false positives → monitor effectiveness → retain, refine, or remove. Do not install overlapping plugins or build a new rule for every one-off mistake. External skill installation still requires Owner approval. CEI work must not bypass task retry caps.
 
-## 11. Persistent memory with selective forgetting
+## 10. Persistent memory with selective forgetting
 
 Use four scopes:
 
@@ -201,7 +176,7 @@ Capture → deduplicate → validate → summarize → promote or expire. Review
 
 Preserve provenance, timestamps, and the ability to supersede outdated rules. If the runtime lacks true persistent storage, explicitly state that limitation and use supported external state; never claim cross-session memory without it.
 
-## 12. Quality and risk gates
+## 11. Quality and risk gates
 
 - **Trivial/low risk:** targeted checks and diff inspection; a separate QA agent is optional.
 - **Meaningful code changes:** independent review proportional to scope, tests, type/lint checks, and acceptance verification.
@@ -210,7 +185,7 @@ Preserve provenance, timestamps, and the ability to supersede outdated rules. If
 
 The implementing agent cannot be the only source of evidence for significant changes. Report unavailable or unrun checks accurately. Never weaken safety controls to make tests pass.
 
-## 13. Owner approval boundary
+## 12. Owner approval boundary
 
 Proceed autonomously on reversible routine development within approved project scope. Ask before:
 
@@ -224,7 +199,7 @@ Proceed autonomously on reversible routine development within approved project s
 
 Batch necessary approvals into one concise request when possible. Do not ask for ordinary implementation preferences that can be safely inferred.
 
-## 14. Runtime capability negotiation and portability
+## 13. Runtime capability negotiation and portability
 
 At initialization, inspect the host's supported features: available models, model selection, effort controls, context limits, subagents, concurrency, tools, hooks, worktrees, persistence, skill discovery/install, permissions, and token/cost telemetry.
 
@@ -242,7 +217,7 @@ Use adapters or equivalent behavior:
 
 Vendor-specific configuration belongs in a separate adapter. This specification should remain stable across Grok, Claude Code, Codex, and future runtimes.
 
-## 15. End-to-end factory workflow
+## 14. End-to-end factory workflow
 
 ```text
 Owner submits idea/task
@@ -261,7 +236,7 @@ Owner submits idea/task
   -> Orchestrator sends one concise delivery report
 ```
 
-## 16. Completion report format
+## 15. Completion report format
 
 Keep user-facing reports short and factual:
 
@@ -272,7 +247,7 @@ Keep user-facing reports short and factual:
 
 Avoid verbose agent activity logs unless the Owner requests them. The Owner should interact with a capable Orchestrator, not manage a crowd of bots.
 
-## 17. Success criteria
+## 16. Success criteria
 
 The factory is successful when it can:
 
@@ -284,6 +259,23 @@ The factory is successful when it can:
 6. Improve project safeguards when mistakes recur, favoring executable enforcement over reminders.
 7. Maintain useful cross-session knowledge while forgetting stale transient details.
 8. Operate across different agent runtimes with graceful degradation and honest capability reporting.
+
+---
+
+## 17. Two-layer architecture and worker instantiation
+
+The factory has **two layers**:
+
+1. **Universal Factory Specification (this document):** defines roles, policies, task routing, memory retention, quality, retry limits, and approval boundaries. This layer is independent of any AI provider.
+2. **Runtime Adapter:** discovers what the current host actually supports and translates the specification into native agents, prompts, skills, model settings, hooks, task state, and tool permissions. Adapters may differ between Grok Build, Claude Code, Codex, and other environments.
+
+A worker is conceptually **model + role instructions + approved skills + relevant project context + scoped task contract + allowed tools/permissions**. An agent need not be a separate process or model; it may be a native subagent, isolated model invocation, or sequential role phase depending on the host.
+
+**Delegation protocol:** The Orchestrator first classifies the task, estimates risk and dependencies, selects an appropriate available model and reasoning effort, and decides whether delegation will save time or improve quality. When delegating, it supplies the worker only its role, relevant skills, task scope, acceptance criteria, required context, and allowed tools. It does **not** copy the entire conversation. Workers return artifacts and concise verification evidence rather than chat transcripts. The Orchestrator integrates and reports.
+
+**Example:** A simple text change may run directly in one SWE phase with low effort. A complex dashboard may require a Designer and API SWE working from an agreed contract, followed by risk-appropriate QA. If the runtime lacks native subagents, the same workflow executes sequentially without claiming independent agents exist.
+
+**Durability boundary:** Prompts alone cannot guarantee cross-session memory, automatic 30-day expiry, shared retry counters, crash recovery, or enforcement hooks. The runtime must provide durable state and executable controls where possible; otherwise the adapter must implement them or clearly identify the limitation. Creating a successor must never reset the task's five-attempt cap.
 
 ---
 
