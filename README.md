@@ -210,7 +210,7 @@ Use adapters or equivalent behavior:
 - **Model selection supported:** map capability tiers to actually available models; reevaluate cost/quality over time.
 - **No model selection or effort control:** use the active model, adjust workflow depth and verification, and do not fabricate settings.
 - **No native hooks:** run equivalent explicit checks at lifecycle gates.
-- **No automatic context metrics:** checkpoint at task boundaries and before lengthy operations; avoid invented percentage thresholds.
+- **No automatic context metrics:** checkpoint at task boundaries and before lengthy operations; avoid invented percentage thresholds. Detect pressure from observable signals instead: a host-side summary or compaction happened, a long operation is about to start, the agent re-asks or contradicts recorded state or loses exact identifiers, or a bounded load proxy is hit (many turns on one task without a checkpoint, very large outputs). On a signal: checkpoint verified state to durable storage, then compact (work from the checkpoint, push heavy work to fresh short-lived workers, bound report size). If degradation recurs after reloading, apply the succession rule in section 5. Where the host does expose context metrics, the adapter may add a numeric trigger.
 - **No native persistent memory:** use approved durable project state; disclose any remaining limits.
 - **No isolated worktrees:** serialize conflicting writes and validate integration.
 - **No reliable token telemetry:** use conservative concurrency and bounded work; do not invent cost measurements.
