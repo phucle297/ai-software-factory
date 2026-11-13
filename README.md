@@ -1,4 +1,4 @@
-# Autonomous AI Software Factory
+# AI Software Factory
 
 > **Executable Pi adapter + portable operating specification**
 > The shell/Python runtime below implements a sequential factory. The numbered sections describe the broader, tool-agnostic specification, not a claim that every capability is implemented.
