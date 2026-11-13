@@ -1,7 +1,119 @@
 # Autonomous AI Software Factory
 
-> **Portable architecture and operating specification**  
-> Status: Proposed baseline · Runtime: Tool-agnostic (Grok, Claude Code, Codex, or other agent-capable environments)
+> **Executable Pi adapter + portable operating specification**
+> The shell/Python runtime below implements a sequential factory. The numbered sections describe the broader, tool-agnostic specification, not a claim that every capability is implemented.
+
+## Install in a project
+
+Requires macOS or Linux, Bash, Python 3.9+, and curl/tar for remote installation. The selected adapter handles coding-tool installation and setup; see the [Pi setup instructions](adapters/pi/README.md#installation-and-authentication) for the currently supported tool. Model access requires your own provider authentication and may incur charges.
+
+Run this from the project directory you want to enable:
+
+```bash copy Copy Install Command
+curl -fsSL https://raw.githubusercontent.com/phucle297/autonomous-ai-software-factory/main/install.sh | bash
+```
+
+This URL becomes usable once these files are published on `main`. From an unpublished checkout, use `bash install.sh` instead. Inspect installers before executing downloaded code.
+
+The installer asks which coding tool to use:
+
+```text
+Choose your coding tool:
+  1) Pi — available
+  2) Claude Code — will be implemented later; unavailable
+  3) Codex — will be implemented later; unavailable
+  4) Amp — will be implemented later; unavailable
+  5) OpenCode — will be implemented later; unavailable
+Select a tool [1: Pi]:
+```
+
+Only Pi can be selected. Choosing a future tool shows an explanation and asks again; it does not install or silently switch to that tool. The prompt reads from the terminal, so it also works when the installer script is piped to Bash. Without an interactive terminal, installation explicitly defaults to Pi. For unattended setup, use `bash install.sh --tool pi` or `curl -fsSL https://raw.githubusercontent.com/phucle297/autonomous-ai-software-factory/main/install.sh | bash -s -- --tool pi`. `FACTORY_RUNTIME=pi` is another installer-only selection option; unavailable tool IDs are rejected through every selection path.
+
+The choice is saved in `~/.config/aisf/config.json`. The [adapters directory](adapters/README.md) documents the catalog, supported tools, and where future integrations belong. Context-pressure, compaction, and succession guidance lives in [PHILOSOPHY.md](PHILOSOPHY.md#context-pressure-compaction-and-succession), not in an executable adapter.
+
+The installer downloads shared files into `~/.config/aisf/` and adds a short AISF section to **`AGENTS.md` in your current directory**. If the file exists, it appends at the bottom without replacing your instructions. Reinstalling the same configuration does not duplicate that section. No factory CLI, `factory init`, PATH changes, project registry, or background hooks are installed.
+
+Start a new session with the selected coding tool in that project and work normally. Follow its adapter's setup and authentication instructions. AISF itself does not edit shell startup files; tool installers may have their own setup behavior. Shared bundled files are refreshed on reinstall, while run state and unrelated files are preserved; back up customized role prompts/scripts before updating.
+
+### Global configuration and project opt-in
+
+Shared AISF files live in one global directory:
+
+```text
+~/.config/aisf/
+  config.json             # selected runtime
+  SESSION.md              # shared role-aware session instructions
+  PHILOSOPHY.md           # canonical operating rules
+  PROJECT_ONBOARDING.md   # canonical onboarding workflow
+  HOOKS.md                # shared lifecycle guards; adapters map native events
+  README.md               # full specification and runtime limits
+  agents/                 # shared role definitions
+  adapters/               # Pi now; other tools planned
+  scripts/                # shared command entry points
+  runs/                   # durable state and verification evidence
+  guards/                 # interactive guard reports and checkpoints
+```
+
+The installer writes a small pointer into the project's `AGENTS.md`; it does not copy policies, agents, or configuration into your project. Custom `FACTORY_HOME` installations get a pointer to their actual directory. Existing project content stays above the appended `<!-- AISF -->` … `<!-- /AISF -->` block. These absolute paths are machine-local; update the pointer on another machine.
+
+Delete the generated project `AGENTS.md` to opt out for **new sessions**. If the file already contained your own guidance, remove only the AISF block instead. There is no project registry or background hook to clean up, and opting out does not delete global history or affect other projects. Restart sessions that already loaded the instructions. This relies on the coding tool reading project `AGENTS.md`; planned adapters remain unavailable. Deleting instructions does not cancel running work or prevent you explicitly invoking the optional runner scripts.
+
+[SESSION.md](SESSION.md) defaults an unassigned top-level session to Orchestrator and preserves explicitly assigned specialist roles. The Pi runner explicitly includes that installed file, full `PHILOSOPHY.md`, the JSON protocol, and only the assigned role definition in every stage's system prompt. It leaves the target project's own guidance unchanged. Workers do not recursively launch another factory pipeline; scheduling, recovery, and counters remain in the runner. Offline tests cover prompt loading, not model compliance or live coding-tool discovery. Repository copies of the shared documents are distribution sources; installed projects reference the global copies.
+
+### Contracts, artifacts, and recovery
+
+The optional sequential runner remains available directly as `~/.config/aisf/scripts/run.sh`; no CLI launcher is installed. For example:
+
+```bash
+~/.config/aisf/scripts/run.sh "Fix the failing parser test"
+~/.config/aisf/scripts/run.sh --file /path/to/task.txt
+~/.config/aisf/scripts/run.sh --project /path/to/project --model provider/model "Add parser tests"
+```
+
+Default scripted handoff: **Orchestrator → PM → (Researcher / Architect / DevOps if routed) → SWE → (Reviewer if routed) → QA → Orchestrator delivery**. One role runs at a time in a fresh `pi --print` invocation. Planning/review roles have read-only built-in tools; SWE has edit and shell tools, and QA has shell tools for independent checks. Research currently uses local sources only. These executable checks apply to the scripted runner; interactive sessions follow the shared instructions without claiming the same enforced pipeline. Pi's configured default model is used unless `--model` is supplied.
+
+Every stage receives a JSON envelope containing the stable task ID, objective, project, attempt number, phase, previous structured results, and last failure. Roles return:
+
+```json
+{"status":"ok","summary":"Concise result","output":{}}
+```
+
+Statuses are `ok`, `retry`, `blocked`, and `awaiting_approval`. Role-specific fields are defined in [agents/](agents/). The runner validates routing, PM acceptance criteria, review verdicts, and QA evidence before continuing. QA cannot pass with failed checks, uncovered criteria, missing evidence, or no completed verification command in its Pi event trace. Evidence interpretation still depends on the model; this is not a proof that arbitrary acceptance criteria are satisfied.
+
+Runs are saved under `~/.config/aisf/runs/<UTC-timestamp>-<unique-id>/` with `state.json`, per-stage `.input.json`, `.guard.json` and `.output.json`, raw Pi JSONL event traces (`.stdout.txt`), and stderr logs. Missing or stopped guard evidence cannot become successful stage output. Logs may contain project data or secrets despite best-effort interception; protect them like source code. Only the Orchestrator delivery is printed to stdout; artifact paths, stops, and errors go to stderr.
+
+- Five attempts maximum, including the initial attempt. The counter is saved before execution. Repairs receive the last failure and prior QA/review evidence. Successful planning is reused.
+- Per-stage timeout defaults to 600 seconds (`--timeout SECONDS` on a new run). Timeout, invalid output, provider failure, or failed QA consumes the current attempt. Interrupted attempts are conservatively consumed too. Cancellation sends Pi SIGTERM and waits up to five seconds for its detached-command cleanup; unresponsive workers stop the run as blocked rather than starting overlapping repairs. Pi transport retries inside an invocation are not additional solution attempts.
+- Resume retains the task, project, model, timeout, and counter. Incomplete resumed runs repeat implementation and verification because project files may have changed while unlocked. Completed runs only replay the saved report. Exhausted runs cannot be reopened by this CLI; never create a replacement run to evade the cap.
+- `blocked` and `awaiting_approval` stop immediately. Read the saved question and explicitly provide an Owner response to continue. The response is not blanket approval for unrelated actions.
+- Advisory locks prevent cooperating factory processes from writing the same project concurrently when using the same factory home. Other tools and different `FACTORY_HOME` values are not isolated.
+
+```bash
+~/.config/aisf/scripts/run.sh --resume ~/.config/aisf/runs/<run-id>
+~/.config/aisf/scripts/run.sh --resume ~/.config/aisf/runs/<run-id> --answer "Proceed with the local-only option"
+
+# Validate a separately produced handoff; this does not run an agent.
+~/.config/aisf/scripts/handoff.sh qa /path/to/qa-result.json
+```
+
+Runner exit codes: `0` completed, `1` exhausted/operational error, `2` blocked/awaiting approval or invalid arguments, `130` interrupted. `FACTORY_HOME` overrides the shared state/install directory (default `~/.config/aisf`; set it for both installation and scripted runs when using a custom location), `FACTORY_REPOSITORY`/`FACTORY_REF` select the remote source at install time, and `FACTORY_PI` selects a compatible Pi executable at run time. Existing `~/.factory` installations or older CLI launchers are not moved or deleted automatically; back them up and migrate deliberately if needed.
+
+### Scope and safety
+
+The implemented adapter is deliberately sequential; it does not implement automatic model-cost routing, parallel fan-out, 30-day memory expiry, native onboarding slash commands, or sandboxed approval enforcement. It links workers to the canonical [onboarding workflow](PROJECT_ONBOARDING.md) rather than duplicating it. Unrelated extensions, MCP servers, skills, and prompt templates are disabled for each scripted invocation; only the adapter's own guard extension is explicitly loaded. Existing project guidance is still loaded.
+
+[HOOKS.md](HOOKS.md) defines nine tool-independent lifecycle guards. Each adapter owns its native hook/event mapping and must disclose enforced, partial, advisory, or unsupported coverage. The Pi adapter now includes event-focused handlers, checkpoints, bounded auditing, and recognized-operation approval gates. Scripted runs load them automatically; interactive use needs the explicit extension startup command in [Pi setup and coverage](adapters/pi/README.md). Merely reading the shared document does not activate enforcement.
+
+**Prompts and tool allowlists are not an OS sandbox.** SWE and QA can run shell commands, which can write files or access credentials/network. Use trusted repositories, least-privilege credentials, and an isolated checkout/container for untrusted tasks. No push, deployment, or external skill installation is authorized merely by starting a run. See [PHILOSOPHY.md](PHILOSOPHY.md).
+
+### Development checks
+
+```bash
+PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s tests -v
+bash -n install.sh adapters/pi/install.sh scripts/run.sh scripts/handoff.sh
+```
+
+Tests use a deterministic Pi protocol fixture and Node event tests, execute real local file/check operations in temporary projects, and do not call paid models. Node tests are skipped if Node.js is unavailable. The adapter documents an optional real-Pi SDK fixture backed by an offline deterministic provider. These tests validate runtime behavior, not prompt effectiveness or live provider compatibility.
 
 ## 1. Purpose
 

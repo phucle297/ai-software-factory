@@ -6,6 +6,8 @@
 
 Run this workflow **once for each new project**, and run only affected stages when major architectural or tooling changes occur. Existing projects should be inspected before any modifications. The Orchestrator is responsible for execution; activate Researcher, Architect, Designer, SWE, QA, or DevOps only when justified.
 
+Shared AISF policies, agents, configuration, and durable run artifacts belong in `~/.config/aisf/` (or the custom installation directory), not the target repository. Project opt-in is only an `AGENTS.md` pointer to the installed `SESSION.md`; the curl installer creates the file or appends its AISF block below existing guidance. Do not add persistent AISF hooks or local policy copies during onboarding: removing the opt-in must stop AISF instructions in new sessions. Normal application source, tests, and project tooling remain project-local.
+
 ## Universal entry point: `/project-onboarding`
 
 The factory MUST expose **`/project-onboarding` as the preferred user-facing entry point** for this workflow. Treat it as a portable *command contract*, not a claim that every coding tool supports native slash commands. The runtime adapter should discover the host's command/skill mechanisms and register a thin entry point where possible. If native slash commands are unavailable, expose the same behavior through the closest supported skill, task, or plain-language invocation. **Do not duplicate this document inside the command**; the entry point delegates to this canonical workflow.
@@ -23,7 +25,7 @@ The factory MUST expose **`/project-onboarding` as the preferred user-facing ent
 3. Classify the request and invoke only necessary roles (Researcher, Architect, Designer, SWE, QA, DevOps). Prefer direct inspection over spawning agents for routine checks.
 4. Run the onboarding stages below, skipping already-satisfied steps. Distinguish recommendations from executed changes.
 5. Before any **external skill installation**, present one concise approval request listing proposed skills, purpose, source, permissions, and trade-offs. Do not install without approval, including in refresh mode.
-6. Apply hooks and deterministic checks through host-supported mechanisms. If unsupported, describe a practical fallback rather than pretending it is active.
+6. Map the lifecycle guards in [HOOKS.md](HOOKS.md) through the selected adapter's host-supported mechanisms. Record enforced, partial, advisory, or unsupported coverage; use explicit workflow checks when native hooks are unavailable. Do not claim that installing the specification activates handlers.
 7. Persist a compact onboarding checkpoint: current architecture, verified controls, approved skills, outstanding risks, and last review date. Never claim cross-session persistence unless durable storage is available.
 8. Return a concise readiness report: **ready / partially ready / blocked**, what changed, what was verified, and what requires Owner action.
 
@@ -53,7 +55,7 @@ On first contact with a new project, or after a significant architectural change
 
 ## Engineering safeguards and hooks
 
-Distinguish **agent lifecycle controls** from **repository engineering controls**. Implement each with native hooks when supported, or with explicit workflow checks when not.
+Distinguish **agent lifecycle controls** from **repository engineering controls**. [HOOKS.md](HOOKS.md) is the canonical specification for the nine lifecycle guards; tool adapters own native hook/event configuration and coverage. Use native hooks when supported, or explicit workflow checks when not, while preserving the project opt-in boundary.
 
 | Event | Expected check |
 |---|---|

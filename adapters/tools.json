@@ -1,0 +1,7 @@
+[
+  {"id": "pi", "name": "Pi", "status": "available"},
+  {"id": "claude", "name": "Claude Code", "status": "planned"},
+  {"id": "codex", "name": "Codex", "status": "planned"},
+  {"id": "amp", "name": "Amp", "status": "planned"},
+  {"id": "opencode", "name": "OpenCode", "status": "planned"}
+]
