@@ -12,7 +12,7 @@ Authenticate Pi using its interactive `/login` or a supported provider environme
 pi --extension ~/.config/aisf/adapters/pi/guards.mjs
 ```
 
-For a custom `FACTORY_HOME`, use its absolute extension path; the Pi installer prints a shell-escaped command. Plain `pi` loads the project's written instructions but **does not activate native event guards**. No user-wide Pi settings or project `.pi/extensions/` files are installed. Removing the AISF pointer from `AGENTS.md` disables interactive guards on the next prompt/session; already-running tools are not cancelled.
+For a custom `FACTORY_HOME`, replace `~/.config/aisf` in the command with that directory's absolute path, quoting the extension path if it contains spaces. Plain `pi` loads the project's written instructions but **does not activate native event guards**. No user-wide Pi settings or project `.pi/extensions/` files are installed. Removing the AISF pointer from `AGENTS.md` disables interactive guards on the next prompt/session; already-running tools are not cancelled.
 
 For optional scripted runs, `FACTORY_PI` selects a compatible Pi executable. Pi's configured default model is used unless the runner receives `--model`. The runner automatically loads this adapter's extension explicitly alongside `--no-extensions`, leaving unrelated extensions disabled. Explicit runner invocation deliberately opts in even without project `AGENTS.md`.
 

@@ -33,7 +33,17 @@ The choice is saved in `~/.config/aisf/config.json`. The [adapters directory](ad
 
 The installer downloads shared files into `~/.config/aisf/` and adds a short AISF section to **`AGENTS.md` in your current directory**. If the file exists, it appends at the bottom without replacing your instructions. Reinstalling the same configuration does not duplicate that section. No factory CLI, `factory init`, PATH changes, project registry, or background hooks are installed.
 
-Start a new session with the selected coding tool in that project and work normally. Follow its adapter's setup and authentication instructions. AISF itself does not edit shell startup files; tool installers may have their own setup behavior. Shared bundled files are refreshed on reinstall, while run state and unrelated files are preserved; back up customized role prompts/scripts before updating.
+Start a new session with the selected coding tool in that project and work normally. Follow its adapter's setup and authentication instructions. AISF itself does not edit shell startup files; tool installers may have their own setup behavior.
+
+### Update AISF
+
+To update, run the same installation command again from a project directory where you want AISF enabled:
+
+```bash copy Copy Update Command
+curl -fsSL https://raw.githubusercontent.com/phucle297/ai-software-factory/main/install.sh | bash
+```
+
+This refreshes the shared AISF files in `~/.config/aisf/` for all projects using that installation. Run state and unrelated files are preserved, and an existing matching AISF block in the current project's `AGENTS.md` is not duplicated. Back up customized bundled files, such as role prompts and scripts, before updating because they are replaced. If you installed with a custom `FACTORY_HOME`, use that same value when updating. Start a new coding-tool session afterward to load the updated instructions and guards.
 
 ### Global configuration and project opt-in
 

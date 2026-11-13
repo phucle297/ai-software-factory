@@ -68,4 +68,4 @@ with target.open('a+', encoding='utf-8') as stream:
         print(f'AISF instructions already present in {target}; unchanged')
 PY
 printf '\nInstalled AISF files in %s\n' "$FACTORY_HOME"
-echo 'To opt out, remove the AISF block from AGENTS.md (or delete the file if it contains only AISF).'
+printf '\nTo uninstall, delete %s and remove the AISF block from AGENTS.md in each enabled project (or delete the file if it contains only AISF).\n' "$FACTORY_HOME"
