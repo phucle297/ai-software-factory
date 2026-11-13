@@ -10,7 +10,7 @@ Requires macOS or Linux, Bash, Python 3.9+, and curl/tar for remote installation
 Run this from the project directory you want to enable:
 
 ```bash copy Copy Install Command
-curl -fsSL https://raw.githubusercontent.com/phucle297/autonomous-ai-software-factory/main/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/phucle297/ai-software-factory/main/install.sh | bash
 ```
 
 This URL becomes usable once these files are published on `main`. From an unpublished checkout, use `bash install.sh` instead. Inspect installers before executing downloaded code.
@@ -27,7 +27,7 @@ Choose your coding tool:
 Select a tool [1: Pi]:
 ```
 
-Only Pi can be selected. Choosing a future tool shows an explanation and asks again; it does not install or silently switch to that tool. The prompt reads from the terminal, so it also works when the installer script is piped to Bash. Without an interactive terminal, installation explicitly defaults to Pi. For unattended setup, use `bash install.sh --tool pi` or `curl -fsSL https://raw.githubusercontent.com/phucle297/autonomous-ai-software-factory/main/install.sh | bash -s -- --tool pi`. `FACTORY_RUNTIME=pi` is another installer-only selection option; unavailable tool IDs are rejected through every selection path.
+Only Pi can be selected. Choosing a future tool shows an explanation and asks again; it does not install or silently switch to that tool. The prompt reads from the terminal, so it also works when the installer script is piped to Bash. Without an interactive terminal, installation explicitly defaults to Pi. For unattended setup, use `bash install.sh --tool pi` or `curl -fsSL https://raw.githubusercontent.com/phucle297/ai-software-factory/main/install.sh | bash -s -- --tool pi`. `FACTORY_RUNTIME=pi` is another installer-only selection option; unavailable tool IDs are rejected through every selection path.
 
 The choice is saved in `~/.config/aisf/config.json`. The [adapters directory](adapters/README.md) documents the catalog, supported tools, and where future integrations belong. Context-pressure, compaction, and succession guidance lives in [PHILOSOPHY.md](PHILOSOPHY.md#context-pressure-compaction-and-succession), not in an executable adapter.
 
@@ -117,7 +117,7 @@ Tests use a deterministic Pi protocol fixture and Node event tests, execute real
 
 ## 1. Purpose
 
-Build an autonomous, reliable, economical software-development organization. The human is the **Owner** and communicates only with the **Orchestrator**. The Owner can provide a rough idea or a concrete task. The Orchestrator takes responsibility for understanding the work, choosing the right specialists and models, implementing, validating, recovering from errors, and reporting the result.
+Build a reliable, economical software-development organization. The human is the **Owner** and communicates only with the **Orchestrator**. The Owner can provide a rough idea or a concrete task. The Orchestrator takes responsibility for understanding the work, choosing the right specialists and models, implementing, validating, recovering from errors, and reporting the result.
 
 **Design principle:** Operate like a well-run software factory, **not** a role-playing chatroom. Prefer verifiable artifacts, deterministic safeguards, minimal communication, and the smallest effective workforce.
 
@@ -125,7 +125,7 @@ This document specifies desired behavior, not claims about features supported by
 
 ## 2. Non-negotiable operating policies
 
-1. **Autonomous by default.** Plan, implement, test, diagnose, and self-correct without routine permission requests. Ask the Owner only about high-risk actions, required external skill installation, or truly blocking product decisions.
+1. **Independent execution by default.** Plan, implement, test, diagnose, and self-correct without routine permission requests. Ask the Owner only about high-risk actions, required external skill installation, or truly blocking product decisions.
 2. **Single point of contact.** Only the Orchestrator communicates with the Owner. Specialists report through structured results, not chat transcripts.
 3. **Hybrid organization.** Permanent *role definitions* with temporary *worker instances*. An inactive role consumes no tokens.
 4. **Adaptive parallelism.** Default to one worker. Fan out only when independence, expected time savings, and resource budgets justify it.
@@ -299,7 +299,7 @@ The implementing agent cannot be the only source of evidence for significant cha
 
 ## 12. Owner approval boundary
 
-Proceed autonomously on reversible routine development within approved project scope. Ask before:
+Proceed independently on reversible routine development within approved project scope. Ask before:
 
 - Production deployment or materially changing live services, unless explicitly preauthorized.
 - Destructive or irreversible data/infrastructure operations.

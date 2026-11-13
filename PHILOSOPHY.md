@@ -7,7 +7,7 @@ The human is the Owner. Only the Orchestrator reports to the Owner. Specialists 
 - Keep changes small. Reuse the standard library and project patterns before adding dependencies or layers.
 - Count at most five total solution attempts per run/task, including the initial attempt. Persist the counter before execution; resume never resets it. Inspect the failed evidence before another attempt.
 - QA verifies acceptance independently in a fresh invocation. It does not implement fixes. Evidence must identify checks, outcomes, and observations; an unsupported success claim is not completion.
-- Work autonomously on local, reversible changes. Block for Owner approval before deployment, destructive operations, paid resources, access changes, sharing sensitive data, external skill installation, or reopening an exhausted task. Permission to implement is not permission to publish.
+- Work independently on local, reversible changes. Block for Owner approval before deployment, destructive operations, paid resources, access changes, sharing sensitive data, external skill installation, or reopening an exhausted task. Permission to implement is not permission to publish.
 - Preserve artifacts and reusable decisions. Resume uses the durable JSON state, not model conversation memory. This runtime does not implement automatic memory expiry or worker succession.
 
 The full universal specification remains in [README.md](README.md); onboarding is defined in [PROJECT_ONBOARDING.md](PROJECT_ONBOARDING.md). Role prompts are policy, not an OS sandbox. Run only in a trusted project with suitable filesystem, network, and credential isolation.

@@ -9,7 +9,7 @@ command -v python3 >/dev/null || { echo 'Install Python 3.9+ first.' >&2; exit 1
 python3 -c 'import sys; assert sys.version_info >= (3, 9), "Python 3.9+ required"'
 
 FACTORY_HOME=${FACTORY_HOME:-"$HOME/.config/aisf"}
-repository=${FACTORY_REPOSITORY:-phucle297/autonomous-ai-software-factory}
+repository=${FACTORY_REPOSITORY:-phucle297/ai-software-factory}
 ref=${FACTORY_REF:-main}
 temporary=$(mktemp -d)
 trap 'rm -rf "$temporary"' EXIT
