@@ -13,7 +13,7 @@ pi install npm:@juicesharp/rpiv-ask-user-question
 pi install npm:pi-simplify
 pi install npm:@heyhuynhgiabuu/pi-pretty
 pi install npm:@narumitw/pi-usage
-pi install npm:@dietrichgebert/ponytail
+pi install npm:pi-subagents
 ```
 
 ## Update steeringMode
